@@ -1,0 +1,70 @@
+; Copyright (c) uib gmbh (www.uib.de)
+; This sourcecode is owned by uib
+; and published under the Terms of the General Public License.
+; credits: http://www.opsi.org/en/credits/
+
+[Actions]
+requiredWinstVersion >= "4.11.4.6"
+ScriptErrorMessages=off
+
+DefVar $MsiId$
+DefVar $UninstallProgram$
+DefVar $LogDir$
+DefVar $ProductId$  
+DefVar $MinimumSpace$
+DefVar $InstallDir$
+DefVar $ExitCode$
+DefVar $LicenseRequired$
+DefVar $LicenseKey$
+DefVar $LicensePool$
+DefVar $myProperty$
+DefVar $progname$
+DefVar $fqprogname$
+DefVar $WinVer$
+DefVar $WinSysType$
+DefVar $WinTypeExt$
+Set $WinVer$ = GetMsVersionInfo
+Set $WinSysType$ = GetSystemType
+
+Set $LogDir$ = "%opsiLogDir%"
+
+; ----------------------------------------------------------------
+; - Please edit the following values                             -
+; ----------------------------------------------------------------
+;$ProductId$ should be the name of the product in opsi
+; therefore please: only lower letters, no umlauts, 
+; no white space use '-' as a seperator
+Set $ProductId$       = "ica-clean-machine"
+Set $MinimumSpace$    = "1 MB"
+; the path were we find the product after the installation
+;Set $InstallDir$      = "%ProgramFiles32Dir%\CCleaner\"
+Set $InstallDir$      = "c:\Program Files\CCleaner\"
+Set $LicenseRequired$ = "false"
+Set $LicensePool$     = "p_" + $ProductId$
+; ----------------------------------------------------------------
+
+Set $WinTypeExt$ = "x64"
+; set the 64 bit ccleaner exe file name
+Set $progname$   = "CCleaner64.exe"
+if ($WinSysType$ = "x86 System")
+    Set $WinTypeExt$ = "x86"
+; set the 32 bit ccleaner exe file name
+    Set $progname$   = "CCleaner.exe"    
+endif   
+
+; set the fully qualified program name
+Set $fqprogname$ = '"' + $InstallDir$ + $progname$ + '"'
+
+	comment "Show product picture"
+	ShowBitmap "%ScriptPath%\" + $ProductId$ + ".png" $ProductId$
+	
+	Message "Running " + $ProductId$ + " ..."
+	
+	comment "Start cleanup program " + $fqprogname$
+	LogError "Start cleanup program " + $fqprogname$ + " using %ScriptPath%\clean-machine.exe"
+	ChangeDirectory "%SCRIPTPATH%"
+	Winbatch_install
+		
+
+[Winbatch_install]
+"%ScriptPath%\clean-machine.exe" $fqprogname$
